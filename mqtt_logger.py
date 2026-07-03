@@ -60,7 +60,6 @@ def get_mqtt_time(timeout=10):
                     if 'length 117' in line:
                         dt = parse_tcpdump_time(line)
                         if dt:
-                            # print(f"Найдена MQTT-команда: {dt.strftime('%H:%M:%S.%f')}")
                             return dt
             
             time.sleep(0.1)
