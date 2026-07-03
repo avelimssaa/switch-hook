@@ -42,8 +42,7 @@ def set_device_state(state: bool):
     
     try:
         response = requests.post(URL_POST, headers=HEADERS, 
-                                 json=payload, 
-                                 # proxies=PROXY, 
+                                 json=payload,
                                  timeout=10)
         
         if response.status_code == 204:
@@ -83,18 +82,17 @@ def measure_delay():
 
     mqtt_time = result_container['mqtt_time']
 
-    print(f'MQTT time: {mqtt_time}')
-
     if post_time and mqtt_time:
-        print(f"Время HTTP POST: {post_time.strftime('%H:%M:%S.%f')[:-3]}")
-        print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')[:-3]}")
         
+        print(f"Время HTTP POST: {post_time.strftime('%H:%M:%S.%f')}")
+        print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')}")
+
         if mqtt_time > post_time:
             delta = (mqtt_time - post_time).total_seconds() * 1000
-            print(f"Задержка: {delta:.0f} мс ({delta/1000:.3f} сек)")
+            print(f"Разница: {delta/1000:.6f} сек")
         else:
             print("MQTT-команда была отправлена ДО HTTP-запроса!")
-            print(f"Разница: {(post_time - mqtt_time).total_seconds() * 1000:.0f} мс")
+            print(f"Разница: {(post_time - mqtt_time).total_seconds() * 1000:.6f} мс")
     else:
         if not post_time:
             print("Не удалось получить время POST-запроса")

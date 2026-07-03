@@ -5,10 +5,10 @@ from datetime import datetime
 from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, MQTT_DESTINATION_HOST
 
 
-def execute_remote_command_async(host, username, password, command):
+def execute_remote_command_in_thread(host, username, password, command):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    print(f'SSHHOST: {SSH_HOST}')
+    
     try:
         client.connect(hostname=host, username=username, password=password, timeout=10)
         transport = client.get_transport()
@@ -36,7 +36,7 @@ def get_mqtt_time(timeout=10):
 
     cmd = f"echo '{SSH_PASSWORD}' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host {SSH_HOST} and dst host {MQTT_DESTINATION_HOST} and tcp port 8883'   | grep --line-buffered 'length 117'"
     
-    channel, client = execute_remote_command_async(
+    channel, client = execute_remote_command_in_thread(
         SSH_HOST, SSH_USERNAME, SSH_PASSWORD, cmd
     )
     
@@ -60,8 +60,7 @@ def get_mqtt_time(timeout=10):
                     if 'length 117' in line:
                         dt = parse_tcpdump_time(line)
                         if dt:
-                            print(f"Найдена MQTT-команда: {dt.strftime('%H:%M:%S.%f')[:-3]}")
-                            print(f"Строка: {line.strip()}")
+                            # print(f"Найдена MQTT-команда: {dt.strftime('%H:%M:%S.%f')}")
                             return dt
             
             time.sleep(0.1)
@@ -75,4 +74,3 @@ def get_mqtt_time(timeout=10):
     finally:
         channel.close()
         client.close()
-        print("tcpdump остановлен")

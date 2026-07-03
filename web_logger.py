@@ -1,6 +1,6 @@
 import paramiko
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, WEB_CONTAINER_NAME
 
 
