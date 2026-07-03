@@ -25,3 +25,5 @@ WEB_CONTAINER_NAME = "swarm_iot_web.1.yrvfrgo5syt62bvxxebzbnc29"
 SSH_HOST = os.getenv('SSH_HOST')
 SSH_USERNAME = os.getenv('SSH_USERNAME')
 SSH_PASSWORD = os.getenv('SSH_PASSWORD')
+
+MQTT_DESTINATION_HOST=os.getenv('MQTT_DESTINATION_HOST')

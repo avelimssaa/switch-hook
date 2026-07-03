@@ -4,9 +4,6 @@ from datetime import datetime, timezone, timedelta
 from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, WEB_CONTAINER_NAME
 
 
-LOCAL_OFFSET = timedelta(hours=7)
-LOCAL_TZ = timezone(LOCAL_OFFSET)
-
 def execute_remote_command(host, username, password, command):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())

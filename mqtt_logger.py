@@ -2,7 +2,7 @@ import paramiko
 import re
 import time
 from datetime import datetime
-from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME
+from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, MQTT_DESTINATION_HOST
 
 
 def execute_remote_command_async(host, username, password, command):
@@ -34,7 +34,7 @@ def parse_tcpdump_time(line):
 
 def get_mqtt_time(timeout=10):
 
-    cmd = "echo 'vadim' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host 192.168.2.110 and dst host 192.168.2.188 and tcp port 8883'   | grep --line-buffered 'length 117'"
+    cmd = f"echo '{SSH_PASSWORD}' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host {SSH_HOST} and dst host {MQTT_DESTINATION_HOST} and tcp port 8883'   | grep --line-buffered 'length 117'"
     
     channel, client = execute_remote_command_async(
         SSH_HOST, SSH_USERNAME, SSH_PASSWORD, cmd

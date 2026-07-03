@@ -70,7 +70,7 @@ def measure_delay():
     t = threading.Thread(target=run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
     t.start()
 
-    time.sleep(0.5)
+    time.sleep(1)
 
     print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
     set_device_state(True)
