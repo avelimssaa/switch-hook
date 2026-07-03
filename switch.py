@@ -4,11 +4,31 @@ import time
 import web_logger
 import mqtt_logger
 import threading
-from config import URL, HEADERS
+from config import URL_POST, HEADERS, URL_GET
 
 
 def run_tcpdump_and_wait_for_mqtt(result, timeout=10):
     result['mqtt_time'] = mqtt_logger.get_mqtt_time(timeout=timeout)
+
+def check_device_state():
+    responce = requests.get(URL_GET, headers=HEADERS)
+    responce.raise_for_status()
+
+    data = responce.json()
+
+    channel_1_properties = data["channels"]["1"]["deviceProperties"]
+
+    socket_status = None
+
+    for prop in channel_1_properties:
+        if prop['kind'] == "ON_OFF":
+            socket_status = prop['value']
+            break
+    
+    if socket_status == "true":
+        print('Розетка включена. Отключение.')
+        set_device_state(False)
+
 
 
 def set_device_state(state: bool):
@@ -21,7 +41,7 @@ def set_device_state(state: bool):
     payload = {"value": state_string}
     
     try:
-        response = requests.post(URL, headers=HEADERS, 
+        response = requests.post(URL_POST, headers=HEADERS, 
                                  json=payload, 
                                  # proxies=PROXY, 
                                  timeout=10)
@@ -42,6 +62,10 @@ def set_device_state(state: bool):
 
 def measure_delay():
     
+    check_device_state()
+
+    time.sleep(1)
+
     result_container = {'mqtt_time': None}
     t = threading.Thread(target=run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
     t.start()
