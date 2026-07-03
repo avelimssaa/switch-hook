@@ -1,12 +1,8 @@
 import paramiko
 import re
 from datetime import datetime, timezone, timedelta
-import os
+from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, WEB_CONTAINER_NAME
 
-SSH_HOST = os.getenv('SSH_HOST')
-SSH_USERNAME = os.getenv('SSH_USERNAME')
-SSH_PASSWORD = os.getenv('SSH_PASSWORD')
-CONTAINER = "swarm_iot_web.1.yimyt94ri3m3mtw32yhs0v267"
 
 LOCAL_OFFSET = timedelta(hours=7)
 LOCAL_TZ = timezone(LOCAL_OFFSET)
@@ -28,7 +24,6 @@ def execute_remote_command(host, username, password, command):
 
 
 def get_recent_logs(host, username, password, container_name, lines=100):
-    """Получает последние N строк логов контейнера"""
     cmd = f'docker logs --timestamps --tail={lines} {container_name} | grep "POST /api/v1/ctl/"'
     return execute_remote_command(host, username, password, cmd)
 
@@ -78,7 +73,7 @@ def parse_logs_for_requests(log_text):
 
 
 def get_post_time():
-    logs = get_recent_logs(SSH_HOST, SSH_USERNAME, SSH_PASSWORD, CONTAINER, lines=100)
+    logs = get_recent_logs(SSH_HOST, SSH_USERNAME, SSH_PASSWORD, WEB_CONTAINER_NAME, lines=100)
     
     if not logs:
         print("Не удалось получить логи")

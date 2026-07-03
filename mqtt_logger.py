@@ -2,17 +2,13 @@ import paramiko
 import re
 import time
 from datetime import datetime
-import os
-
-SSH_HOST = os.getenv('SSH_HOST')
-SSH_USERNAME = os.getenv('SSH_USERNAME')
-SSH_PASSWORD = os.getenv('SSH_PASSWORD')
+from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME
 
 
 def execute_remote_command_async(host, username, password, command):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    
+    print(f'SSHHOST: {SSH_HOST}')
     try:
         client.connect(hostname=host, username=username, password=password, timeout=10)
         transport = client.get_transport()
