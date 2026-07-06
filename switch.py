@@ -4,13 +4,17 @@ import time
 import web_logger
 import mqtt_logger
 import threading
-from config import URL_POST, HEADERS
 
 
 def run_tcpdump_and_wait_for_mqtt(result, timeout=10):
     result['mqtt_time'] = mqtt_logger.get_mqtt_time(timeout=timeout)
 
-def check_device_state(device_url):
+def check_device_state(device_url, user_data):
+    HEADERS = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {user_data['token']}"
+    }
+            
     responce = requests.get(device_url, headers=HEADERS)
     responce.raise_for_status()
 
@@ -31,7 +35,7 @@ def check_device_state(device_url):
         return False
 
 
-def set_device_state(state: bool):
+def set_device_state(state: bool, device_url, user_data):
     
     state_string = ""
     if (state):
@@ -40,8 +44,13 @@ def set_device_state(state: bool):
         state_string = "false"
     payload = {"value": state_string}
     
+    HEADERS = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {user_data['token']}"
+    }
+
     try:
-        response = requests.post(URL_POST, headers=HEADERS, 
+        response = requests.post(f'{device_url}/props/00250000_0', headers=HEADERS, 
                                  json=payload,
                                  timeout=10)
         
@@ -59,7 +68,7 @@ def set_device_state(state: bool):
 
 
 
-def measure_delay(device_url):
+def measure_delay(device_url, user_data):
 
     result_container = {'mqtt_time': None}
     t = threading.Thread(target=run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
@@ -67,12 +76,12 @@ def measure_delay(device_url):
 
     time.sleep(1)
 
-    if check_device_state():
+    if check_device_state(device_url, user_data):
         print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
-        set_device_state(False)
+        set_device_state(False, device_url, user_data)
     else:
         print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
-        set_device_state(True)
+        set_device_state(True, device_url, user_data)
     
     time.sleep(1)
 

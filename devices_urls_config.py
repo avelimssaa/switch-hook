@@ -70,10 +70,11 @@ def get_devices_urls(user_data):
         data = responce.json()
 
         for device in data:
-            device_id = device['id']
+            device_id = device['nodeId']
             controller_id = device['controllerId']
 
-            device_url = f'{HOST}/api/v1/houses/{controller_id}/devices/{device_id}'
+            device_url = f'{HOST}/api/v1/ctl/{controller_id}/devices/{device_id}'
+            print(f'DEVICE URLS: {device_url}')
             user_data['devices'].append(device_url)
 
 
