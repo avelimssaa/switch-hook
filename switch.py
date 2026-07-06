@@ -24,10 +24,13 @@ def check_device_state():
         if prop['kind'] == "ON_OFF":
             socket_status = prop['value']
             break
-    
+
     if socket_status == "true":
-        print('Розетка включена. Отключение.')
-        set_device_state(False)
+        return True
+        # print('Розетка включена. Отключение.')
+        # set_device_state(False)
+    else:
+        return False
 
 
 
@@ -61,7 +64,7 @@ def set_device_state(state: bool):
 
 def measure_delay():
     
-    check_device_state()
+    # check_device_state()
 
     time.sleep(1)
 
@@ -71,8 +74,16 @@ def measure_delay():
 
     time.sleep(1)
 
-    print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
-    set_device_state(True)
+    if check_device_state():
+        print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+        set_device_state(False)
+    else:
+        print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+        set_device_state(True)
+
+
+    # print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+    # set_device_state(True)
     
     time.sleep(1)
 
@@ -99,8 +110,8 @@ def measure_delay():
         if not mqtt_time:
             print("Не удалось получить время MQTT-команды")
     
-    print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
-    set_device_state(False)
+    # print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+    # set_device_state(False)
     
     return post_time, mqtt_time
 

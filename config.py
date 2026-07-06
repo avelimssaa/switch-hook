@@ -70,4 +70,3 @@ def get_container_name():
 WEB_CONTAINER_NAME = get_container_name()
 
 MQTT_DESTINATION_HOST=os.getenv('MQTT_DESTINATION_HOST')
-
