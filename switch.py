@@ -27,8 +27,6 @@ def check_device_state():
 
     if socket_status == "true":
         return True
-        # print('Розетка включена. Отключение.')
-        # set_device_state(False)
     else:
         return False
 
@@ -63,10 +61,6 @@ def set_device_state(state: bool):
 
 
 def measure_delay():
-    
-    # check_device_state()
-
-    time.sleep(1)
 
     result_container = {'mqtt_time': None}
     t = threading.Thread(target=run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
@@ -80,10 +74,6 @@ def measure_delay():
     else:
         print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
         set_device_state(True)
-
-
-    # print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
-    # set_device_state(True)
     
     time.sleep(1)
 
@@ -99,22 +89,18 @@ def measure_delay():
         print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')}")
 
         if mqtt_time > post_time:
-            delta = (mqtt_time - post_time).total_seconds() * 1000
-            print(f"Разница: {delta/1000:.6f} сек")
+            delta = (mqtt_time - post_time).total_seconds()
+            print(f"Разница: {delta} сек")
         else:
             print("MQTT-команда была отправлена ДО HTTP-запроса!")
-            print(f"Разница: {(post_time - mqtt_time).total_seconds() * 1000:.6f} мс")
+            print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек")
     else:
         if not post_time:
             print("Не удалось получить время POST-запроса")
         if not mqtt_time:
             print("Не удалось получить время MQTT-команды")
     
-    # print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
-    # set_device_state(False)
-    
     return post_time, mqtt_time
-
 
 
 if __name__ == "__main__":
