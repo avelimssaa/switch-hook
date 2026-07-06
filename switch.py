@@ -31,7 +31,6 @@ def check_device_state():
         return False
 
 
-
 def set_device_state(state: bool):
     
     state_string = ""
@@ -92,8 +91,8 @@ def measure_delay():
             delta = (mqtt_time - post_time).total_seconds()
             print(f"Разница: {delta} сек")
         else:
-            print("MQTT-команда была отправлена ДО HTTP-запроса!")
-            print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек")
+            print('MQTT-запрос пришел раньше HTTP-запроса.')
+            print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек.")
     else:
         if not post_time:
             print("Не удалось получить время POST-запроса")

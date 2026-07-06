@@ -26,7 +26,7 @@ def get_token(AUTH_URL):
     },
     auth=('android-client', 'password')
                              )
-
+    responce.raise_for_status()
     data = responce.json()
 
     token = data['access_token']
@@ -64,8 +64,6 @@ def get_container_name():
         return container_name or None
     finally:
         client.close()
-
-# WEB_CONTAINER_NAME = "swarm_iot_web.1.r1yxa6mdxtt8s4gscexjr41e5"
 
 WEB_CONTAINER_NAME = get_container_name()
 
