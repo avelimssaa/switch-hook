@@ -4,14 +4,14 @@ import time
 import web_logger
 import mqtt_logger
 import threading
-from config import URL_POST, HEADERS, URL_GET
+from config import URL_POST, HEADERS
 
 
 def run_tcpdump_and_wait_for_mqtt(result, timeout=10):
     result['mqtt_time'] = mqtt_logger.get_mqtt_time(timeout=timeout)
 
-def check_device_state():
-    responce = requests.get(URL_GET, headers=HEADERS)
+def check_device_state(device_url):
+    responce = requests.get(device_url, headers=HEADERS)
     responce.raise_for_status()
 
     data = responce.json()
@@ -59,7 +59,7 @@ def set_device_state(state: bool):
 
 
 
-def measure_delay():
+def measure_delay(device_url):
 
     result_container = {'mqtt_time': None}
     t = threading.Thread(target=run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
