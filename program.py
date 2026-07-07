@@ -5,9 +5,9 @@ from user import User
 
 def main():
     server = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
-    statistic = Statistics(server)
+    statistic = Statistics(server, 10)
     user1 = User(server, '1', '1', HOST)
-    statistic.measure_delay(user1.devices[0])
+    statistic.count_one_device_average(user1.devices[0])
 
 
 if __name__ == "__main__":

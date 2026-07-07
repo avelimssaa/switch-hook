@@ -40,7 +40,7 @@ class User:
                 controller_id = device['controllerId']
 
                 device_url = f'{self.host}/api/v1/ctl/{controller_id}/devices/{device_id}'
-                print(f'DEVICE URLS: {device_url}')
+                # print(f'DEVICE URLS: {device_url}')
 
                 user_device = Device(device_url, self.access_token)
 

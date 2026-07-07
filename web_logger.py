@@ -1,4 +1,3 @@
-import paramiko
 import re
 from datetime import datetime, timedelta
 
@@ -38,7 +37,8 @@ class WebLogger:
     
         for line in logs.splitlines():
             parsed = self.parse_log_line(line)
-            requests.append(parsed)
+            if parsed is not None:
+                requests.append(parsed)
     
         if not requests:
             print("POST-запросы не найдены")

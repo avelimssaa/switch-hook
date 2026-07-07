@@ -1,6 +1,4 @@
-import paramiko
 import re
-import time
 from datetime import datetime, timedelta
 from config import MQTT_DESTINATION_HOST
 
