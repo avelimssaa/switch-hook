@@ -3,7 +3,7 @@ import requests
 
 class Device:
 
-    def __init__(self, URL, IP, user_token):
+    def __init__(self, URL, user_token, IP=None):
         self.URL = URL
         self.IP = IP
         self.user_token = user_token

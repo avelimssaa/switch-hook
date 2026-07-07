@@ -1,12 +1,11 @@
 import paramiko
 import re
 from datetime import datetime, timedelta
-from config import WEB_CONTAINER_NAME
 
 
 class WebLogger:
 
-    def parse_log_line(line):
+    def parse_log_line(self, line):
         timestamp_match = re.match(r'(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z)', line)
         if not timestamp_match:
             return None
@@ -24,8 +23,10 @@ class WebLogger:
         }
 
     def get_post_time(self, ssh_client):
+        command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
+        web_container_name = ssh_client.run_one_command(command)
 
-        cmd = f'docker logs --timestamps --tail=1 {WEB_CONTAINER_NAME} | grep "POST /api/v1/ctl/"'
+        cmd = f'docker logs --timestamps --tail=1 {web_container_name} | grep "POST /api/v1/ctl/"'
     
         logs = ssh_client.run_one_command(cmd)
 

@@ -80,12 +80,12 @@ from config import HOST, USERS
 
 
 
-def user_devices_collect():
-    auth_users()
-    for user_key in USERS:
-        get_house_ids(USERS[user_key])
-        get_devices_urls(USERS[user_key])
+# def user_devices_collect():
+#     auth_users()
+#     for user_key in USERS:
+#         get_house_ids(USERS[user_key])
+#         get_devices_urls(USERS[user_key])
     
 
-if __name__ == "__main__":
-    user_devices_collect()
+# if __name__ == "__main__":
+#     user_devices_collect()

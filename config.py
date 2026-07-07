@@ -56,26 +56,8 @@ SSH_HOST = os.getenv('SSH_HOST')
 SSH_USERNAME = os.getenv('SSH_USERNAME')
 SSH_PASSWORD = os.getenv('SSH_PASSWORD')
 
-def get_container_name():
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    try:
-        client.connect(hostname=SSH_HOST, username=SSH_USERNAME, password=SSH_PASSWORD)
-        command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
 
-        stdin, stdout, stderr = client.exec_command(command)
-        
-        container_name = stdout.read().decode('utf-8').strip()
-        error = stderr.read().decode('utf-8').strip()
-
-        if error:
-            print(f'Ошибка: {error}')
-
-        return container_name or None
-    finally:
-        client.close()
-
-WEB_CONTAINER_NAME = get_container_name()
+# WEB_CONTAINER_NAME = get_container_name()
 
 MQTT_DESTINATION_HOST=os.getenv('MQTT_DESTINATION_HOST')

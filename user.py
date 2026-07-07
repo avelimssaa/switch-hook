@@ -1,12 +1,14 @@
 import requests
+from device import Device
 
 
 class User:
 
-    def __init__(self, host, username, password):
-        self.host = host
+    def __init__(self, server, username, password, host):
+        self.server = server
         self.username = username
         self.password = password
+        self.host = host
         self.houses = []
         self.devices = []
         self.access_token = ""
@@ -17,7 +19,7 @@ class User:
         self.authentication()
         self.get_house_ids()
         for house in self.houses:
-            GET_DEVICES_URL = f'{self.host.ip_address}/api/v1/houses/{house}/devices'
+            GET_DEVICES_URL = f'{self.host}/api/v1/houses/{house}/devices'
 
             HEADERS = {
             "Content-Type": "application/json",
@@ -37,15 +39,18 @@ class User:
                 device_id = device['nodeId']
                 controller_id = device['controllerId']
 
-                device_url = f'{self.host.ip_address}/api/v1/ctl/{controller_id}/devices/{device_id}'
+                device_url = f'{self.host}/api/v1/ctl/{controller_id}/devices/{device_id}'
                 print(f'DEVICE URLS: {device_url}')
-                self.devices.append(device_url)
+
+                user_device = Device(device_url, self.access_token)
+
+                self.devices.append(user_device)
 
     def get_device_ip_address():
         pass
 
     def authentication(self):
-        AUTH_URL = f'{self.host.ip_address}/api/v1/oauth2/token'
+        AUTH_URL = f'{self.host}/api/v1/oauth2/token'
         responce = requests.post(AUTH_URL, 
                                  params={
         'grant_type': 'password',
@@ -70,7 +75,7 @@ class User:
         "Authorization": f"Bearer {self.access_token}"
         }
 
-        GET_HOUSE_URL = f'{self.host.ip_address}/api/v1/houses'
+        GET_HOUSE_URL = f'{self.host}/api/v1/houses'
         
         responce = requests.get(
             GET_HOUSE_URL,

@@ -4,12 +4,12 @@ from mqtt_logger import MQTTLogger
 from web_logger import WebLogger
 
 class Statistics:
-    def __init__(self, host):
-        self.host = host
+    def __init__(self, server):
+        self.server = server
 
-    def run_tcpdump_and_wait_for_mqtt(result, timeout=10):
+    def run_tcpdump_and_wait_for_mqtt(self, result, timeout=10):
         mqtt_logger = MQTTLogger()
-        result['mqtt_time'] = mqtt_logger.get_mqtt_time(timeout=timeout)
+        result['mqtt_time'] = mqtt_logger.get_mqtt_time(self.server, timeout=timeout)
 
     def measure_delay(self, device):
         result_container = {'mqtt_time': None}
@@ -29,7 +29,7 @@ class Statistics:
         
         web_logger = WebLogger()
 
-        post_time = web_logger.get_post_time()
+        post_time = web_logger.get_post_time(self.server)
 
         t.join()
 
