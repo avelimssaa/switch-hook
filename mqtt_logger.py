@@ -19,7 +19,7 @@ class MQTTLogger:
         # cmd = f"echo '{ssh_client.password}' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host {ssh_client.ip_address} and dst host {MQTT_DESTINATION_HOST} and tcp port 8883'   | grep --line-buffered 'length 117'"
         cmd = f"echo '{ssh_client.password}' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host {ssh_client.ip_address} and tcp port 8883'   | grep --line-buffered 'length 117'"
     
-        channel, client = ssh_client.run_continuous_command(cmd)
+        channel, _ = ssh_client.run_continuous_command(cmd)
     
         if not channel:
             print("Не удалось запустить tcpdump")

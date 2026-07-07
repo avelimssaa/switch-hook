@@ -64,3 +64,13 @@ class Statistics:
             time.sleep(1)
         average = sum / self.requests_count
         print(f'Среднее время обработки запроса: {average} сек')
+        return average
+
+    def count_devices_average(self, devices):
+        devices_count = len(devices)
+        devices_averages_sum = 0
+        for device in devices:
+            devices_averages_sum += self.count_one_device_average(device)
+        total_average = devices_averages_sum / devices_count
+        print(f'Среднее время отклика: {total_average}')
+        

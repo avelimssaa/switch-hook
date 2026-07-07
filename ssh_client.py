@@ -16,11 +16,8 @@ class SSHClient:
     
         try:
             client.connect(hostname=self.ip_address, username=self.name, password=self.password)
-            stdin, stdout, stderr = client.exec_command(cmd)
+            _, stdout, _ = client.exec_command(cmd)
             output = stdout.read().decode('utf-8')
-            error = stderr.read().decode('utf-8').strip()
-            # if error:
-            #     print(f'Ошибка: {error}')
             return output or None
         except Exception as exception:
             print(f"Ошибка: {exception}")

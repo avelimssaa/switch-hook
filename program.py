@@ -7,7 +7,7 @@ def main():
     server = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
     statistic = Statistics(server, 10)
     user1 = User(server, '1', '1', HOST)
-    statistic.count_one_device_average(user1.devices[0])
+    statistic.count_devices_average(user1.devices)
 
 
 if __name__ == "__main__":
