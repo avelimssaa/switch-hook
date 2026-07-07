@@ -1,5 +1,8 @@
 import requests
+import threading
+import time
 from device import Device
+from mqtt_logger import MQTTLogger
 
 
 class User:
@@ -15,6 +18,11 @@ class User:
         self.refresh_token = ""
         self.find_devices()
     
+    def run_tcpdump_and_wait_for_ip_address(self, result, timeout=10):
+        mqtt_logger = MQTTLogger()
+        result['ip_address'] = mqtt_logger.get_mqtt_ip_address_dest(self.server, timeout)
+
+
     def find_devices(self):
         self.authentication()
         self.get_house_ids()
@@ -43,11 +51,34 @@ class User:
                 # print(f'DEVICE URLS: {device_url}')
 
                 user_device = Device(device_url, self.access_token)
-
+                device = self.get_device_ip_address(user_device)
                 self.devices.append(user_device)
 
-    def get_device_ip_address():
-        pass
+    def get_device_ip_address(self, device):
+        result_container = {'ip_address': None}
+        t = threading.Thread(target=self.run_tcpdump_and_wait_for_ip_address, args=(result_container, 10))
+
+        t.start()
+
+        time.sleep(1)
+
+        if device.get_state():
+            print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+            device.set_new_state(False)
+        else:
+            print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+            device.set_new_state(True)
+        
+        time.sleep(1)
+
+        t.join()
+
+        device.IP = result_container['ip_address']
+
+        print(f'DEVICE IPP: {device.IP}')
+
+        return device
+
 
     def authentication(self):
         AUTH_URL = f'{self.host}/api/v1/oauth2/token'

@@ -8,13 +8,13 @@ class Statistics:
         self.server = server
         self.requests_count = requests_count
 
-    def run_tcpdump_and_wait_for_mqtt(self, result, timeout=10):
+    def run_tcpdump_and_wait_for_mqtt(self, result, device_ip, timeout=10):
         mqtt_logger = MQTTLogger()
-        result['mqtt_time'] = mqtt_logger.get_mqtt_time(self.server, timeout=timeout)
+        result['mqtt_time'] = mqtt_logger.get_mqtt_time(self.server, device_ip, timeout=timeout)
 
     def measure_delay(self, device):
         result_container = {'mqtt_time': None}
-        t = threading.Thread(target=self.run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
+        t = threading.Thread(target=self.run_tcpdump_and_wait_for_mqtt, args=(result_container, device.IP, 10))
         t.start()
 
         time.sleep(1)
@@ -73,4 +73,3 @@ class Statistics:
             devices_averages_sum += self.count_one_device_average(device)
         total_average = devices_averages_sum / devices_count
         print(f'Среднее время отклика: {total_average}')
-        
