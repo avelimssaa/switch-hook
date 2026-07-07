@@ -1,0 +1,55 @@
+import time
+import threading
+from mqtt_logger import MQTTLogger
+from web_logger import WebLogger
+
+class Statistics:
+    def __init__(self, host):
+        self.host = host
+
+    def run_tcpdump_and_wait_for_mqtt(result, timeout=10):
+        mqtt_logger = MQTTLogger()
+        result['mqtt_time'] = mqtt_logger.get_mqtt_time(timeout=timeout)
+
+    def measure_delay(self, device):
+        result_container = {'mqtt_time': None}
+        t = threading.Thread(target=self.run_tcpdump_and_wait_for_mqtt, args=(result_container, 10))
+        t.start()
+
+        time.sleep(1)
+
+        if device.get_state():
+            print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+            device.set_new_state(False)
+        else:
+            print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+            device.set_new_state(True)
+    
+        time.sleep(1)
+        
+        web_logger = WebLogger()
+
+        post_time = web_logger.get_post_time()
+
+        t.join()
+
+        mqtt_time = result_container['mqtt_time']
+
+        if post_time and mqtt_time:
+        
+            print(f"Время HTTP POST: {post_time.strftime('%H:%M:%S.%f')}")
+            print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')}")
+
+            if mqtt_time > post_time:
+                delta = (mqtt_time - post_time).total_seconds()
+                print(f"Разница: {delta} сек")
+            else:
+                print('MQTT-запрос пришел раньше HTTP-запроса.')
+                print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек.")
+        else:
+            if not post_time:
+                print("Не удалось получить время POST-запроса")
+            if not mqtt_time:
+                print("Не удалось получить время MQTT-команды")
+    
+        return post_time, mqtt_time
