@@ -1,6 +1,5 @@
 import re
 from datetime import datetime, timedelta
-from config import MQTT_DESTINATION_HOST
 
 
 class MQTTLogger:
@@ -36,11 +35,13 @@ class MQTTLogger:
 
         while attempts_count < 10:
             lines = ssh_client.send_data_from_channel(timeout)
-            for line in lines:
-                datetime = self.parse_tcpdump_time(line)
-                if datetime:
-                    ssh_client.close_channel()
-                    return datetime
+            if lines is not None:
+                for line in lines:
+                    datetime = self.parse_tcpdump_time(line)
+                    if datetime:
+                        ssh_client.close_channel()
+                        return datetime
+            attempts_count += 1
         
         return None
     
@@ -57,11 +58,12 @@ class MQTTLogger:
 
         while attempts_count < 10:
             lines = ssh_client.send_data_from_channel(timeout)
-            for line in lines:
-                ip_address = self.parse_ip_address(line)
-                if ip_address:
-                    ssh_client.close_channel()
-                    return ip_address
+            if lines is not None:
+                for line in lines:
+                    ip_address = self.parse_ip_address(line)
+                    if ip_address:
+                        ssh_client.close_channel()
+                        return ip_address
             attempts_count += 1
         
         return None

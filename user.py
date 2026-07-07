@@ -75,7 +75,8 @@ class User:
 
         device.IP = result_container['ip_address']
 
-        print(f'DEVICE IPP: {device.IP}')
+        print(f'DEVICE IP: {device.IP}')
+        print(f'DEVICE URL: {device.URL}')
 
         return device
 

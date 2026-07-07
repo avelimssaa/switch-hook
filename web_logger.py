@@ -21,11 +21,11 @@ class WebLogger:
             'timestamp': timestamp
         }
 
-    def get_post_time(self, ssh_client):
+    def get_post_time(self, ssh_client, post_request="POST /api/v1/ctl/"):
         command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
         web_container_name = ssh_client.run_one_command(command)
 
-        cmd = f'docker logs --timestamps --tail=1 {web_container_name} | grep "POST /api/v1/ctl/"'
+        cmd = f'docker logs --timestamps --tail=1 {web_container_name} | grep "{post_request}"'
     
         logs = ssh_client.run_one_command(cmd)
 
