@@ -16,7 +16,6 @@ class User:
         self.__houses = []
         self.__devices = []
         self.__access_token = ""
-        self.__refresh_token = ""
         self.__find_devices()
     
     def __run_tcpdump_and_wait_for_ip_address(self, result, timeout=10):
@@ -97,9 +96,8 @@ class User:
         data = responce.json()
 
         access_token = data['access_token']
-        refresh_token = data['refresh_token']
+
         self.__access_token = access_token
-        self.__refresh_token = refresh_token
         
 
     def __get_house_ids(self):
@@ -126,9 +124,6 @@ class User:
         house_ids = [house['id'] for house in data]
 
         self.__houses = house_ids
-
-    def __check_token():
-        pass
     
     def get_devices(self):
         return self.__devices

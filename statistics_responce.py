@@ -36,8 +36,9 @@ class Statistics:
             else:
                 get_device_state_attempts -= 1
                 device_state = device.get_state()
-                return 0
 
+        if device_state is None:
+            return 10
 
         # if device.get_state():
         #     print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
