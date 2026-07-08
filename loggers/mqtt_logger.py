@@ -37,7 +37,7 @@ class MQTTLogger:
         
         attempts_count = 0
 
-        while attempts_count < 10:
+        while attempts_count < 3:
             lines = ssh_client.send_data_from_channel(timeout)
             if lines is not None:
                 for line in lines:

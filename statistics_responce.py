@@ -17,17 +17,34 @@ class Statistics:
     def __measure_delay(self, device):
 
         result_container = {'mqtt_time': None}
-        t = threading.Thread(target=self.__run_tcpdump_and_wait_for_mqtt, args=(result_container, device.get_ip_address(), 10))
+        t = threading.Thread(target=self.__run_tcpdump_and_wait_for_mqtt, args=(result_container, device.get_ip_address(), 3))
         t.start()
 
         time.sleep(1)
+        
+        get_device_state_attempts = 5
+        device_state = device.get_state()
+        while get_device_state_attempts > 0:
+            if device_state is not None:
+                if device.get_state():
+                    print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    device.set_new_state(False)
+                else:
+                    print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    device.set_new_state(True)
+                break
+            else:
+                get_device_state_attempts -= 1
+                device_state = device.get_state()
+                return 0
 
-        if device.get_state():
-            print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
-            device.set_new_state(False)
-        else:
-            print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
-            device.set_new_state(True)
+
+        # if device.get_state():
+        #     print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+        #     device.set_new_state(False)
+        # else:
+        #     print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+        #     device.set_new_state(True)
         
         web_logger = WebLogger()
 
@@ -61,7 +78,11 @@ class Statistics:
     def __count_one_device_average(self, device):
         sum = 0
         for _ in range(self.__requests_count):
-            sum += self.__measure_delay(device=device)
+            dif = self.__measure_delay(device=device)
+            if dif is not None:
+                sum += dif
+            else:
+                sum += 1
             time.sleep(1)
         average = sum / self.__requests_count
         # print(f'Среднее время обработки запроса: {average} сек')

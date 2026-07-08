@@ -14,8 +14,12 @@ class Device:
             "Authorization": f"Bearer {self.__user_token}"
         }
         
-        responce = requests.get(self.__URL, headers=HEADERS)
-        responce.raise_for_status()
+        try:
+            responce = requests.get(self.__URL, headers=HEADERS)
+            responce.raise_for_status()
+        except Exception as exception:
+            print(f'Произошла ошибка при запросе статуса: {exception}')
+            return None
 
         data = responce.json()
 
