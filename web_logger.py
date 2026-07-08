@@ -1,6 +1,7 @@
 import re
 from datetime import datetime, timedelta
-
+from ssh_client import SSHClient
+from config import SSH_HOST, SSH_USERNAME, SSH_PASSWORD
 
 class WebLogger:
 
@@ -22,6 +23,8 @@ class WebLogger:
         }
 
     def get_post_time(self, ssh_client, post_request="POST /api/v1/ctl/"):
+        ssh_client = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
+
         command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
         web_container_name = ssh_client.run_one_command(command)
 

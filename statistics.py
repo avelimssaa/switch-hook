@@ -14,13 +14,12 @@ class Statistics:
         result['mqtt_time'] = mqtt_logger.get_mqtt_time(self.server, device_ip, timeout=timeout)
 
     def measure_delay(self, device):
-        time.sleep(1)
 
         result_container = {'mqtt_time': None}
         t = threading.Thread(target=self.run_tcpdump_and_wait_for_mqtt, args=(result_container, device.IP, 10))
         t.start()
 
-        time.sleep(3)
+        time.sleep(1)
 
         if device.get_state():
             print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
@@ -43,11 +42,11 @@ class Statistics:
             # print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')}")
             if mqtt_time > post_time:
                 delta = (mqtt_time - post_time).total_seconds()
-                print(f"Разница: {delta} сек")
+                print(f"Разница для {device.IP}: {delta} сек")
             else:
                 pass
                 # delta = (post_time - mqtt_time).total_seconds()
-                # print('MQTT-запрос пришел раньше HTTP-запроса.')
+                print(f'MQTT-запрос для {device.IP} пришел раньше HTTP-запроса.')
                 # print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек.")
         
         else:
@@ -84,16 +83,16 @@ class Statistics:
             thread = threading.Thread(target=self.run_count_device_average_in_thread, args=(result_queue, device), name=f'Thread device IP: {device.IP}')
             threads.append(thread)
             thread.start()
-            time.sleep(3)
+        for thread in threads:
+            thread.join()
         for _ in range(len(threads)):
             device_ip, result = result_queue.get()
             print(f'Средняя задержка устройства с IP-адресом {device_ip}: {result}')
             devices_averages_sum += result
-        for thread in threads:
-            thread.join()
+
 
         # for device in devices:
         #     devices_averages_sum += self.count_one_device_average(device)
 
         total_average = devices_averages_sum / devices_count
-        print(f'Среднее время отклика: {total_average}')
+        print(f'Среднее время отклика: {total_average} сек')

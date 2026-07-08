@@ -52,7 +52,7 @@ class Device:
                                  timeout=10)
         
             if response.status_code == 204:
-                print(f"Устройство {'включено' if state else 'выключено'} (статус: {response.status_code})")
+                print(f"Устройство {self.IP} {'включено' if state else 'выключено'} (статус: {response.status_code})")
                 return True
             else:
                 print(f"Ошибка: статус {response.status_code}")
