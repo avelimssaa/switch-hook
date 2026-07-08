@@ -22,26 +22,36 @@ class WebLogger:
             'timestamp': timestamp
         }
 
-    def get_post_time(self, ssh_client, post_request="POST /api/v1/ctl/"):
+    def get_post_time(self, post_request, device_ip):
         ssh_client = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
 
         command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
         web_container_name = ssh_client.run_one_command(command)
+        
+        if f'http://{SSH_HOST}/' in post_request:
+            # print(f'Есть подстрока!!!!!')
+            post_request = post_request.replace(f'http://{SSH_HOST}/', '/')
 
-        cmd = f'docker logs --timestamps --tail=1 {web_container_name} | grep "{post_request}"'
-    
+        else:
+            print(f'Нет подстроки. Подстрока: {f'http://{SSH_HOST}/'}. Строка: {post_request}')
+        cmd = f'docker logs --timestamps --tail=10 {web_container_name} | grep "{post_request}"'
+        # print(f'COMMANDDD: {cmd}')
         logs = ssh_client.run_one_command(cmd)
 
         if not logs:
             print("Не удалось получить логи")
             return None
-    
+        
+        # print(f'Device IP: {device_ip}. LOGS: {logs}')
+
         requests = []
     
         for line in logs.splitlines():
-            parsed = self.parse_log_line(line)
-            if parsed is not None:
-                requests.append(parsed)
+            if post_request in line:
+                parsed = self.parse_log_line(line)
+                # print(f'Принятая строка для {device_ip}: {line}')
+                if parsed is not None:
+                    requests.append(parsed)
     
         if not requests:
             print("POST-запросы не найдены")

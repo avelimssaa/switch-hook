@@ -21,7 +21,7 @@ class MQTTLogger:
         else:
             return None
 
-    def get_mqtt_time(self, ssh_client, device_ip, timeout=10):
+    def get_mqtt_time(self, device_ip, timeout=10):
         
         ssh_client = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
 
@@ -55,7 +55,8 @@ class MQTTLogger:
         
         return None
     
-    def get_mqtt_ip_address_dest(self, ssh_client, timeout=10):
+    def get_mqtt_ip_address_dest(self, timeout=10):
+        ssh_client = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
         cmd = f"echo '{ssh_client.password}' | sudo -S tcpdump -i enp0s3 -tttt -n -s 0 -A -l  'src host {ssh_client.ip_address} and tcp port 8883'   | grep --line-buffered 'length 117'"
 
         channel, _ = ssh_client.run_continuous_command(cmd)

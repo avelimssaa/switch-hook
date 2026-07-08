@@ -11,7 +11,7 @@ class Statistics:
 
     def run_tcpdump_and_wait_for_mqtt(self, result, device_ip, timeout=10):
         mqtt_logger = MQTTLogger()
-        result['mqtt_time'] = mqtt_logger.get_mqtt_time(self.server, device_ip, timeout=timeout)
+        result['mqtt_time'] = mqtt_logger.get_mqtt_time(device_ip, timeout=timeout)
 
     def measure_delay(self, device):
 
@@ -30,22 +30,21 @@ class Statistics:
         
         web_logger = WebLogger()
 
-        post_time = web_logger.get_post_time(self.server, device.URL)
-
+        post_time = web_logger.get_post_time(device.URL, device.IP)
         t.join()
 
         mqtt_time = result_container['mqtt_time']
         delta = 0
         if post_time and mqtt_time:
         
-            # print(f"Время HTTP POST: {post_time.strftime('%H:%M:%S.%f')}")
-            # print(f"Время MQTT: {mqtt_time.strftime('%H:%M:%S.%f')}")
+            print(f"Время HTTP POST {device.IP}: {post_time.strftime('%H:%M:%S.%f')}")
+            print(f"Время MQTT {device.IP}: {mqtt_time.strftime('%H:%M:%S.%f')}")
             if mqtt_time > post_time:
                 delta = (mqtt_time - post_time).total_seconds()
                 print(f"Разница для {device.IP}: {delta} сек")
             else:
                 pass
-                # delta = (post_time - mqtt_time).total_seconds()
+                delta = (post_time - mqtt_time).total_seconds()
                 print(f'MQTT-запрос для {device.IP} пришел раньше HTTP-запроса.')
                 # print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек.")
         

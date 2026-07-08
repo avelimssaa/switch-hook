@@ -20,7 +20,7 @@ class User:
     
     def run_tcpdump_and_wait_for_ip_address(self, result, timeout=10):
         mqtt_logger = MQTTLogger()
-        result['ip_address'] = mqtt_logger.get_mqtt_ip_address_dest(self.server, timeout)
+        result['ip_address'] = mqtt_logger.get_mqtt_ip_address_dest(timeout)
 
 
     def find_devices(self):
