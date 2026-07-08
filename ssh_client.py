@@ -1,5 +1,7 @@
-import paramiko
 import time
+
+import paramiko
+
 
 class SSHClient:
 

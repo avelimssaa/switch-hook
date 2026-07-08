@@ -1,8 +1,10 @@
-import requests
 import threading
 import time
-from device import Device
-from mqtt_logger import MQTTLogger
+
+import requests
+
+from loggers.mqtt_logger import MQTTLogger
+from models.device import Device
 
 
 class User:
@@ -47,8 +49,6 @@ class User:
                 controller_id = device['controllerId']
 
                 device_url = f'{self.__host}/api/v1/ctl/{controller_id}/devices/{device_id}'
-                # print(f'DEVICE URLS: {device_url}')
-
                 user_device = Device(device_url, self.__access_token)
                 device = self.__get_device_ip_address(user_device)
                 self.__devices.append(user_device)
@@ -72,15 +72,16 @@ class User:
 
         t.join()
 
-        device.IP = result_container['ip_address']
+        device.set_device_ip(result_container['ip_address'])
 
-        print(f'DEVICE IP: {device.IP}')
-        print(f'DEVICE URL: {device.URL}')
+        print(f'DEVICE IP: {device.get_ip_address()}')
+        print(f'DEVICE URL: {device.get_URL()}')
 
         return device
 
 
     def __authentication(self):
+        
         AUTH_URL = f'{self.__host}/api/v1/oauth2/token'
         responce = requests.post(AUTH_URL, 
                                  params={
@@ -91,6 +92,7 @@ class User:
         },
         auth=('android-client', 'password')
                              )
+        
         responce.raise_for_status()
         data = responce.json()
 
@@ -98,6 +100,7 @@ class User:
         refresh_token = data['refresh_token']
         self.__access_token = access_token
         self.__refresh_token = refresh_token
+        
 
     def __get_house_ids(self):
 

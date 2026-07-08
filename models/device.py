@@ -11,10 +11,10 @@ class Device:
     def get_state(self):
         HEADERS = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.user_token}"
+            "Authorization": f"Bearer {self.__user_token}"
         }
-            
-        responce = requests.get(self.URL, headers=HEADERS)
+        
+        responce = requests.get(self.__URL, headers=HEADERS)
         responce.raise_for_status()
 
         data = responce.json()
@@ -43,16 +43,16 @@ class Device:
     
         HEADERS = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.user_token}"
+            "Authorization": f"Bearer {self.__user_token}"
         }
 
         try:
-            response = requests.post(f'{self.URL}/props/00250000_0', headers=HEADERS, 
+            response = requests.post(f'{self.__URL}/props/00250000_0', headers=HEADERS, 
                                  json=payload,
                                  timeout=10)
         
             if response.status_code == 204:
-                print(f"Устройство {self.IP} {'включено' if state else 'выключено'} (статус: {response.status_code})")
+                print(f"Устройство {self.__IP} {'включено' if state else 'выключено'} (статус: {response.status_code})")
                 return True
             else:
                 print(f"Ошибка: статус {response.status_code}")
@@ -63,3 +63,14 @@ class Device:
             print(f"Неожиданная ошибка: {exception}")
             return False
  
+    def get_ip_address(self):
+        return self.__IP
+    
+    def get_URL(self):
+        return self.__URL
+    
+    def get_user_token(self):
+        return self.__user_token
+
+    def set_device_ip(self, IP):
+        self.__IP = IP

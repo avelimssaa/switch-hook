@@ -1,6 +1,6 @@
 from config import HOST
-from statistics import Statistics
-from user import User
+from models.user import User
+from statistics_responce import Statistics
 
 
 def main():
