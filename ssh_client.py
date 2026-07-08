@@ -4,18 +4,18 @@ import time
 class SSHClient:
 
     def __init__(self, ip_address, name, password):
-        self.ip_address = ip_address
-        self.name = name
-        self.password = password
-        self.client = None
-        self.channel = None
+        self.__ip_address = ip_address
+        self.__name = name
+        self.__password = password
+        self.__client = None
+        self.__channel = None
 
     def run_one_command(self, cmd):
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
         try:
-            client.connect(hostname=self.ip_address, username=self.name, password=self.password)
+            client.connect(hostname=self.__ip_address, username=self.__name, password=self.__password)
             _, stdout, _ = client.exec_command(cmd)
             output = stdout.read().decode('utf-8')
             return output or None
@@ -30,14 +30,14 @@ class SSHClient:
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     
         try:
-            client.connect(hostname=self.ip_address, username=self.name, password=self.password, timeout=10)
+            client.connect(hostname=self.__ip_address, username=self.__name, password=self.__password, timeout=10)
             transport = client.get_transport()
             channel = transport.open_session()
             channel.get_pty()
             channel.exec_command(cmd)
 
-            self.channel = channel
-            self.client = client
+            self.__channel = channel
+            self.__client = client
 
             return channel, client
         except Exception as exception:
@@ -50,8 +50,8 @@ class SSHClient:
 
         try:
             while time.time() - start_time < timeout:
-                if self.channel.recv_ready():
-                    data = self.channel.recv(4096).decode('utf-8', errors='ignore')
+                if self.__channel.recv_ready():
+                    data = self.__channel.recv(4096).decode('utf-8', errors='ignore')
                     buffer += data
                 
                     lines = buffer.split('\n')
@@ -68,5 +68,14 @@ class SSHClient:
             return None
     
     def close_channel(self):
-        self.channel.close()
-        self.client.close()
+        self.__channel.close()
+        self.__client.close()
+    
+    def get_ip_address(self):
+        return self.__ip_address
+    
+    def get_username(self):
+        return self.__name
+    
+    def get_password(self):
+        return self.__password

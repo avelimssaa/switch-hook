@@ -7,31 +7,30 @@ from mqtt_logger import MQTTLogger
 
 class User:
 
-    def __init__(self, server, username, password, host):
-        self.server = server
-        self.username = username
-        self.password = password
-        self.host = host
-        self.houses = []
-        self.devices = []
-        self.access_token = ""
-        self.refresh_token = ""
-        self.find_devices()
+    def __init__(self, username, password, host):
+        self.__username = username
+        self.__password = password
+        self.__host = host
+        self.__houses = []
+        self.__devices = []
+        self.__access_token = ""
+        self.__refresh_token = ""
+        self.__find_devices()
     
-    def run_tcpdump_and_wait_for_ip_address(self, result, timeout=10):
+    def __run_tcpdump_and_wait_for_ip_address(self, result, timeout=10):
         mqtt_logger = MQTTLogger()
         result['ip_address'] = mqtt_logger.get_mqtt_ip_address_dest(timeout)
 
 
-    def find_devices(self):
-        self.authentication()
-        self.get_house_ids()
-        for house in self.houses:
-            GET_DEVICES_URL = f'{self.host}/api/v1/houses/{house}/devices'
+    def __find_devices(self):
+        self.__authentication()
+        self.__get_house_ids()
+        for house in self.__houses:
+            GET_DEVICES_URL = f'{self.__host}/api/v1/houses/{house}/devices'
 
             HEADERS = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}"
+            "Authorization": f"Bearer {self.__access_token}"
             }
 
             responce = requests.get(
@@ -47,16 +46,16 @@ class User:
                 device_id = device['nodeId']
                 controller_id = device['controllerId']
 
-                device_url = f'{self.host}/api/v1/ctl/{controller_id}/devices/{device_id}'
+                device_url = f'{self.__host}/api/v1/ctl/{controller_id}/devices/{device_id}'
                 # print(f'DEVICE URLS: {device_url}')
 
-                user_device = Device(device_url, self.access_token)
-                device = self.get_device_ip_address(user_device)
-                self.devices.append(user_device)
+                user_device = Device(device_url, self.__access_token)
+                device = self.__get_device_ip_address(user_device)
+                self.__devices.append(user_device)
 
-    def get_device_ip_address(self, device):
+    def __get_device_ip_address(self, device):
         result_container = {'ip_address': None}
-        t = threading.Thread(target=self.run_tcpdump_and_wait_for_ip_address, args=(result_container, 10))
+        t = threading.Thread(target=self.__run_tcpdump_and_wait_for_ip_address, args=(result_container, 10))
 
         t.start()
 
@@ -81,13 +80,13 @@ class User:
         return device
 
 
-    def authentication(self):
-        AUTH_URL = f'{self.host}/api/v1/oauth2/token'
+    def __authentication(self):
+        AUTH_URL = f'{self.__host}/api/v1/oauth2/token'
         responce = requests.post(AUTH_URL, 
                                  params={
         'grant_type': 'password',
-        'username': self.username,
-        'password': self.password,
+        'username': self.__username,
+        'password': self.__password,
         'client_id': 'android-client'
         },
         auth=('android-client', 'password')
@@ -97,17 +96,17 @@ class User:
 
         access_token = data['access_token']
         refresh_token = data['refresh_token']
-        self.access_token = access_token
-        self.refresh_token = refresh_token
+        self.__access_token = access_token
+        self.__refresh_token = refresh_token
 
-    def get_house_ids(self):
+    def __get_house_ids(self):
 
         HEADERS = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {self.access_token}"
+        "Authorization": f"Bearer {self.__access_token}"
         }
 
-        GET_HOUSE_URL = f'{self.host}/api/v1/houses'
+        GET_HOUSE_URL = f'{self.__host}/api/v1/houses'
         
         responce = requests.get(
             GET_HOUSE_URL,
@@ -123,7 +122,11 @@ class User:
 
         house_ids = [house['id'] for house in data]
 
-        self.houses = house_ids
+        self.__houses = house_ids
 
-    def check_token():
+    def __check_token():
         pass
+    
+    def get_devices(self):
+        return self.__devices
+    

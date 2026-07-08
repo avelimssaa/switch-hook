@@ -4,9 +4,9 @@ import requests
 class Device:
 
     def __init__(self, URL, user_token, IP=None):
-        self.URL = URL
-        self.IP = IP
-        self.user_token = user_token
+        self.__URL = URL
+        self.__IP = IP
+        self.__user_token = user_token
     
     def get_state(self):
         HEADERS = {
@@ -62,3 +62,4 @@ class Device:
         except Exception as exception:
             print(f"Неожиданная ошибка: {exception}")
             return False
+ 

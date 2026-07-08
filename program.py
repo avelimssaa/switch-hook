@@ -1,7 +1,7 @@
-from ssh_client import SSHClient
-from config import SSH_HOST, SSH_PASSWORD, SSH_USERNAME, HOST
+from config import HOST
 from statistics import Statistics
 from user import User
+
 
 def main():
 
@@ -11,10 +11,9 @@ def main():
         print('Введите число.')
         return
 
-    server = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
-    statistic = Statistics(server, requests_count)
-    user1 = User(server, '1', '1', HOST)
-    statistic.count_devices_average(user1.devices)
+    statistic = Statistics(requests_count)
+    user1 = User('1', '1', HOST)
+    statistic.count_devices_average(user1.get_devices())
 
 
 if __name__ == "__main__":

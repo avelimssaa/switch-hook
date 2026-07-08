@@ -5,18 +5,17 @@ from mqtt_logger import MQTTLogger
 from web_logger import WebLogger
 
 class Statistics:
-    def __init__(self, server, requests_count=5):
-        self.server = server
-        self.requests_count = requests_count
+    def __init__(self, requests_count=5):
+        self.__requests_count = requests_count
 
-    def run_tcpdump_and_wait_for_mqtt(self, result, device_ip, timeout=10):
+    def __run_tcpdump_and_wait_for_mqtt(self, result, device_ip, timeout=10):
         mqtt_logger = MQTTLogger()
         result['mqtt_time'] = mqtt_logger.get_mqtt_time(device_ip, timeout=timeout)
 
-    def measure_delay(self, device):
+    def __measure_delay(self, device):
 
         result_container = {'mqtt_time': None}
-        t = threading.Thread(target=self.run_tcpdump_and_wait_for_mqtt, args=(result_container, device.IP, 10))
+        t = threading.Thread(target=self.__run_tcpdump_and_wait_for_mqtt, args=(result_container, device.IP, 10))
         t.start()
 
         time.sleep(1)
@@ -30,7 +29,7 @@ class Statistics:
         
         web_logger = WebLogger()
 
-        post_time = web_logger.get_post_time(device.URL, device.IP)
+        post_time = web_logger.get_post_time(device.URL)
         t.join()
 
         mqtt_time = result_container['mqtt_time']
@@ -57,18 +56,18 @@ class Statistics:
     
         return delta
     
-    def count_one_device_average(self, device):
+    def __count_one_device_average(self, device):
         sum = 0
-        for _ in range(self.requests_count):
-            sum += self.measure_delay(device=device)
+        for _ in range(self.__requests_count):
+            sum += self.__measure_delay(device=device)
             time.sleep(1)
-        average = sum / self.requests_count
-        print(f'Среднее время обработки запроса: {average} сек')
+        average = sum / self.__requests_count
+        # print(f'Среднее время обработки запроса: {average} сек')
         return average
 
 
-    def run_count_device_average_in_thread(self, result_queue, device):
-        result = self.count_one_device_average(device=device)
+    def __run_count_device_average_in_thread(self, result_queue, device):
+        result = self.__count_one_device_average(device=device)
         result_queue.put((device.IP, result))
 
 
@@ -79,14 +78,14 @@ class Statistics:
         result_queue = queue.Queue()
         threads = []
         for device in devices:
-            thread = threading.Thread(target=self.run_count_device_average_in_thread, args=(result_queue, device), name=f'Thread device IP: {device.IP}')
+            thread = threading.Thread(target=self.__run_count_device_average_in_thread, args=(result_queue, device), name=f'Thread device IP: {device.IP}')
             threads.append(thread)
             thread.start()
         for thread in threads:
             thread.join()
         for _ in range(len(threads)):
             device_ip, result = result_queue.get()
-            print(f'Средняя задержка устройства с IP-адресом {device_ip}: {result}')
+            print(f'Средняя задержка устройства с IP-адресом {device_ip}: {result} сек')
             devices_averages_sum += result
 
 

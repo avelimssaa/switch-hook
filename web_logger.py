@@ -22,7 +22,7 @@ class WebLogger:
             'timestamp': timestamp
         }
 
-    def get_post_time(self, post_request, device_ip):
+    def get_post_time(self, post_request):
         ssh_client = SSHClient(SSH_HOST, SSH_USERNAME, SSH_PASSWORD)
 
         command = f"docker ps --filter name=swarm_iot_web --format {{{{.Names}}}}"
