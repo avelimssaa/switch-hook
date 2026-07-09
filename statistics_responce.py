@@ -2,9 +2,9 @@ import queue
 import threading
 import time
 
+from file_writer import FileWriter
 from loggers.mqtt_logger import MQTTLogger
 from loggers.web_logger import WebLogger
-from file_writer import FileWriter
 
 
 class Statistics:

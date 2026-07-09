@@ -1,5 +1,7 @@
 import time
 from datetime import datetime
+import os
+
 
 class FileWriter:
     
@@ -13,9 +15,10 @@ class FileWriter:
             file.write(string)
     
     def init_log(self):
+        os.makedirs('logs', exist_ok=True)
         self.log('\n')
         self.log('=' * 100)
-        self.log('\n\n')
+        self.log('\n')
         self.log(f'\nNEW MEASUREMENT at {datetime.fromtimestamp(time.time())}\n')
         self.log('\n')
         self.log('=' * 100)

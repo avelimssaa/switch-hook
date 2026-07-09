@@ -1,7 +1,7 @@
 from config import HOST
+from file_writer import FileWriter
 from models.user import User
 from statistics_responce import Statistics
-from file_writer import FileWriter
 
 
 def main():
