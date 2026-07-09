@@ -33,7 +33,6 @@ class User:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.__access_token}"
             }
-
             responce = requests.get(
             GET_DEVICES_URL,
             headers=HEADERS
@@ -72,6 +71,9 @@ class User:
         t.join()
 
         device.set_device_ip(result_container['ip_address'])
+
+        if device.get_ip_address() is None:
+            device.set_device_ip("")
 
         print(f'DEVICE IP: {device.get_ip_address()}')
         print(f'DEVICE URL: {device.get_URL()}')

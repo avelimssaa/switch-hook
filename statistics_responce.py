@@ -4,21 +4,26 @@ import time
 
 from loggers.mqtt_logger import MQTTLogger
 from loggers.web_logger import WebLogger
+from file_writer import FileWriter
 
 
 class Statistics:
-    def __init__(self, requests_count=5):
+    def __init__(self, log_file, requests_count=5):
         self.__requests_count = requests_count
+        self.__log_file = log_file
+
 
     def __run_tcpdump_and_wait_for_mqtt(self, result, device_ip, timeout=10):
         mqtt_logger = MQTTLogger()
         result['mqtt_time'] = mqtt_logger.get_mqtt_time(device_ip, timeout=timeout)
 
-    def __measure_delay(self, device):
+    def __measure_delay(self, device, log_file):
 
         result_container = {'mqtt_time': None}
         t = threading.Thread(target=self.__run_tcpdump_and_wait_for_mqtt, args=(result_container, device.get_ip_address(), 3))
         t.start()
+
+        # log_file = FileWriter(f'Logs device with IP: {device.get_ip_address()}')
 
         time.sleep(1)
         
@@ -27,10 +32,12 @@ class Statistics:
         while get_device_state_attempts > 0:
             if device_state is not None:
                 if device.get_state():
-                    print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    # print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    log_file.log("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...\n")
                     device.set_new_state(False)
                 else:
-                    print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    # print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
+                    log_file.log("\nВКЛЮЧЕНИЕ РОЗЕТКИ...\n")
                     device.set_new_state(True)
                 break
             else:
@@ -49,16 +56,20 @@ class Statistics:
         delta = 0
         if post_time and mqtt_time:
         
-            print(f"Время HTTP POST {device.get_ip_address()}: {post_time.strftime('%H:%M:%S.%f')}")
-            print(f"Время MQTT {device.get_ip_address()}: {mqtt_time.strftime('%H:%M:%S.%f')}")
+            # print(f"Время HTTP POST {device.get_ip_address()}: {post_time.strftime('%H:%M:%S.%f')}")
+            log_file.log(f"Время HTTP POST {device.get_ip_address()}: {post_time.strftime('%H:%M:%S.%f')}\n")
+            # print(f"Время MQTT {device.get_ip_address()}: {mqtt_time.strftime('%H:%M:%S.%f')}")
+            log_file.log(f"Время MQTT {device.get_ip_address()}: {mqtt_time.strftime('%H:%M:%S.%f')}\n")
             if mqtt_time > post_time:
                 delta = (mqtt_time - post_time).total_seconds()
-                print(f"Разница для {device.get_ip_address()}: {delta} сек")
+                # print(f"Разница для {device.get_ip_address()}: {delta} сек")
+                log_file.log(f"Разница для {device.get_ip_address()}: {delta} сек\n")
             else:
-                pass
                 delta = (post_time - mqtt_time).total_seconds()
-                print(f'MQTT-запрос для {device.get_ip_address()} пришел раньше HTTP-запроса.')
-                print(f"Разница для {device.get_ip_address()}: {(post_time - mqtt_time).total_seconds()} сек.")
+                # print(f'MQTT-запрос для {device.get_ip_address()} пришел раньше HTTP-запроса.')
+                log_file.log(f'MQTT-запрос для {device.get_ip_address()} пришел раньше HTTP-запроса.\n')
+                # print(f"Разница для {device.get_ip_address()}: {(post_time - mqtt_time).total_seconds()} сек.")
+                log_file.log(f"Разница для {device.get_ip_address()}: {(post_time - mqtt_time).total_seconds()} сек.\n")
         
         else:
             if not post_time:
@@ -69,10 +80,10 @@ class Statistics:
     
         return delta
     
-    def __count_one_device_average(self, device):
+    def __count_one_device_average(self, device, log_file):
         sum = 0
         for _ in range(self.__requests_count):
-            dif = self.__measure_delay(device=device)
+            dif = self.__measure_delay(device, log_file)
             if dif is not None:
                 sum += dif
             else:
@@ -82,8 +93,8 @@ class Statistics:
         return average
 
 
-    def __run_count_device_average_in_thread(self, result_queue, device):
-        result = self.__count_one_device_average(device=device)
+    def __run_count_device_average_in_thread(self, result_queue, device, log_file):
+        result = self.__count_one_device_average(device, log_file)
         result_queue.put((device.get_ip_address(), result))
 
 
@@ -94,15 +105,19 @@ class Statistics:
         result_queue = queue.Queue()
         threads = []
         for device in devices:
-            thread = threading.Thread(target=self.__run_count_device_average_in_thread, args=(result_queue, device), name=f'Thread device IP: {device.get_ip_address()}')
+            log_file = FileWriter(f'Logs device with IP: {device.get_ip_address()}')
+            thread = threading.Thread(target=self.__run_count_device_average_in_thread, args=(result_queue, device, log_file), name=f'Thread device IP: {device.get_ip_address()}')
             threads.append(thread)
             thread.start()
         for thread in threads:
             thread.join()
         for _ in range(len(threads)):
             device_ip, result = result_queue.get()
-            print(f'Средняя задержка устройства с IP-адресом {device_ip}: {result} сек')
+            print(f'\nСредняя задержка устройства с IP-адресом {device_ip}: {result} сек')
+            self.__log_file.log(f'\nСредняя задержка устройства с IP-адресом {device_ip}: {result} сек\n')
             devices_averages_sum += result
 
         total_average = devices_averages_sum / devices_count
-        print(f'Среднее время отклика: {total_average} сек')
+        print(f'\nСреднее время отклика: {total_average} сек')
+        self.__log_file.log(f'\nСреднее время отклика: {total_average} сек')
+

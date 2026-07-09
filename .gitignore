@@ -94,3 +94,6 @@ cython_debug/
 # Profiling data
 .prof
 *.prof
+
+Socket_logs.txt
+logs/
