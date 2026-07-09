@@ -39,13 +39,6 @@ class Statistics:
 
         if device_state is None:
             return 10
-
-        # if device.get_state():
-        #     print("\nВЫКЛЮЧЕНИЕ РОЗЕТКИ...")
-        #     device.set_new_state(False)
-        # else:
-        #     print("\nВКЛЮЧЕНИЕ РОЗЕТКИ...")
-        #     device.set_new_state(True)
         
         web_logger = WebLogger()
 
@@ -65,7 +58,7 @@ class Statistics:
                 pass
                 delta = (post_time - mqtt_time).total_seconds()
                 print(f'MQTT-запрос для {device.get_ip_address()} пришел раньше HTTP-запроса.')
-                # print(f"Разница: {(post_time - mqtt_time).total_seconds()} сек.")
+                print(f"Разница для {device.get_ip_address()}: {(post_time - mqtt_time).total_seconds()} сек.")
         
         else:
             if not post_time:
@@ -86,7 +79,6 @@ class Statistics:
                 sum += 1
             time.sleep(1)
         average = sum / self.__requests_count
-        # print(f'Среднее время обработки запроса: {average} сек')
         return average
 
 
@@ -111,10 +103,6 @@ class Statistics:
             device_ip, result = result_queue.get()
             print(f'Средняя задержка устройства с IP-адресом {device_ip}: {result} сек')
             devices_averages_sum += result
-
-
-        # for device in devices:
-        #     devices_averages_sum += self.count_one_device_average(device)
 
         total_average = devices_averages_sum / devices_count
         print(f'Среднее время отклика: {total_average} сек')
